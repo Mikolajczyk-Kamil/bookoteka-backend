@@ -1,8 +1,8 @@
-package com.mikolajczyk.book.backend.manager.sources.googleBooks.controller;
+package com.mikolajczyk.redude.backend.sources.googleBooks.controller;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.sources.googleBooks.engine.ExtendedSearchEngine;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.sources.googleBooks.engine.ExtendedSearchEngine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

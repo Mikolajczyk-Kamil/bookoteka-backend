@@ -1,8 +1,8 @@
-package com.mikolajczyk.book.backend.manager.sources.googleBooks.mapper;
+package com.mikolajczyk.redude.backend.sources.googleBooks.mapper;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.dto.BookDto;
-import com.mikolajczyk.book.backend.manager.mapper.BookMapper;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.dto.BookDto;
+import com.mikolajczyk.redude.backend.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -68,11 +68,8 @@ public class GoogleBookMapper {
             isEbook = Boolean.getBoolean(tmp);
             if (isEbook)
                 buyLink = jsonBook.getJSONObject("saleInfo").get("buyLink").toString();
-            if (jsonBook.getJSONObject("saleInfo").get("saleability").equals("FOR_SALE")) {
-                retailPrice =
-                        jsonBook.getJSONObject("saleInfo").getJSONObject("retailPrice").get("amount").toString() + " " +
-                                jsonBook.getJSONObject("saleInfo").getJSONObject("retailPrice").get("currencyCode").toString();
-            }
+            if (jsonBook.getJSONObject("saleInfo").get("saleability").equals("FOR_SALE"))
+                retailPrice = jsonBook.getJSONObject("saleInfo").getJSONObject("retailPrice").get("amount").toString();
             return new BookDto(
                     googleId,
                     identifier.get("ISBN"),
