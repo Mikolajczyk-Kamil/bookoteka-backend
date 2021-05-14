@@ -1,12 +1,12 @@
-package com.mikolajczyk.book.backend.manager.verifier;
+package com.mikolajczyk.redude.backend.verifier;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.mikolajczyk.book.backend.manager.domain.User;
-import com.mikolajczyk.book.backend.manager.dto.UserDto;
-import com.mikolajczyk.book.backend.manager.mapper.UserMapper;
+import com.mikolajczyk.redude.backend.domain.User;
+import com.mikolajczyk.redude.backend.dto.UserDto;
+import com.mikolajczyk.redude.backend.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

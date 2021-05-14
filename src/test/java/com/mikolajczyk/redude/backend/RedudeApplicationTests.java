@@ -1,10 +1,10 @@
-package com.mikolajczyk.book.backend.manager;
+package com.mikolajczyk.redude.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ManagerApplicationTests {
+class RedudeApplicationTests {
 
     @Test
     void contextLoads() {

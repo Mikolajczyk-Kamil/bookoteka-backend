@@ -1,4 +1,4 @@
-package com.mikolajczyk.book.backend.manager.controller.response;
+package com.mikolajczyk.redude.backend.controller.response;
 
 public enum StatusResponse {
     SUCCESS,

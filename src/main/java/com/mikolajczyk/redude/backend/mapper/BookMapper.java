@@ -1,7 +1,7 @@
-package com.mikolajczyk.book.backend.manager.mapper;
+package com.mikolajczyk.redude.backend.mapper;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.dto.BookDto;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.dto.BookDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,7 +12,6 @@ public class BookMapper {
 
     public BookDto mapToBookDto(Book book) {
         return new BookDto(
-                book.getId(),
                 book.getGoogleId(),
                 book.getIsbn(),
                 book.getIndustryId(),

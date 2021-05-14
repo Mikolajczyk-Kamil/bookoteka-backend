@@ -1,19 +1,22 @@
-package com.mikolajczyk.book.backend.manager.controller;
+package com.mikolajczyk.redude.backend.controller;
 
-import com.mikolajczyk.book.backend.manager.controller.response.LoginResponse;
-import com.mikolajczyk.book.backend.manager.controller.response.StatusResponse;
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.domain.User;
-import com.mikolajczyk.book.backend.manager.dto.BookDto;
-import com.mikolajczyk.book.backend.manager.dto.UserDto;
-import com.mikolajczyk.book.backend.manager.log.domain.Log;
-import com.mikolajczyk.book.backend.manager.log.service.LogService;
-import com.mikolajczyk.book.backend.manager.log.type.LogType;
-import com.mikolajczyk.book.backend.manager.mapper.BookMapper;
-import com.mikolajczyk.book.backend.manager.mapper.UserMapper;
-import com.mikolajczyk.book.backend.manager.service.BookService;
-import com.mikolajczyk.book.backend.manager.service.UserService;
-import com.mikolajczyk.book.backend.manager.verifier.TokenVerifier;
+import com.mikolajczyk.redude.backend.controller.response.LoginResponse;
+import com.mikolajczyk.redude.backend.controller.response.StatusResponse;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.domain.User;
+import com.mikolajczyk.redude.backend.dto.BookDto;
+import com.mikolajczyk.redude.backend.dto.UserDto;
+import com.mikolajczyk.redude.backend.log.LogController;
+import com.mikolajczyk.redude.backend.log.domain.Log;
+import com.mikolajczyk.redude.backend.log.type.LogType;
+import com.mikolajczyk.redude.backend.mail.controller.MailController;
+import com.mikolajczyk.redude.backend.mail.type.MailType;
+import com.mikolajczyk.redude.backend.mapper.BookMapper;
+import com.mikolajczyk.redude.backend.mapper.UserMapper;
+import com.mikolajczyk.redude.backend.service.BookService;
+import com.mikolajczyk.redude.backend.rating.service.RatingService;
+import com.mikolajczyk.redude.backend.service.UserService;
+import com.mikolajczyk.redude.backend.verifier.TokenVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +38,9 @@ public class AccountController {
     private final BookMapper bookMapper;
     private final UserMapper userMapper;
     private final TokenVerifier verifier;
-    private final LogService logService;
+    private final RatingService ratingService;
+    private final LogController logController;
+    private final MailController mailController;
 
     @PostMapping
     public LoginResponse signIn(@RequestHeader("Authorization") String token) {
@@ -47,11 +52,12 @@ public class AccountController {
                 if (optionalUser.isEmpty()) {
                     log.info("User not found. Sign up new user...");
                     User result = userService.save(user);
-                    logService.save(new Log(LogType.SIGN_UP, result, null));
+                    mailController.createAndSend(user.getName(), user.getEmail(), "Welcome to Redudo!", MailType.WELCOME);
+                    logController.log(new Log(LogType.SIGN_UP, result, null));
                     return LoginResponse.SUCCESS_NEW_USER;
                 }
                 log.info(LoginResponse.SUCCESS.toString());
-                logService.save(new Log(LogType.SIGN_IN, optionalUser.get(), null));
+                logController.log(new Log(LogType.SIGN_IN, optionalUser.get(), null));
                 return LoginResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -73,7 +79,7 @@ public class AccountController {
                     return null;
                 userDto.setId(result.get().getId());
                 log.info(StatusResponse.SUCCESS.toString());
-                logService.save(new Log(LogType.UPDATE_ACCOUNT, result.get(), null));
+                logController.log(new Log(LogType.UPDATE_ACCOUNT, result.get(), null));
                 return userMapper.mapToUserDto(userService.save(userMapper.mapToUser(userDto)));
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -91,8 +97,11 @@ public class AccountController {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
+                logController.deleteAllUserLog(optionalUser.get());
+                ratingService.deleteAllByUser(optionalUser.get());
                 userService.delete(user.getGoogleId());
-                logService.save(new Log(LogType.DELETE_ACCOUNT, user, null));
+                mailController.createAndSend(optionalUser.get().getName(), optionalUser.get().getEmail(), "This makes us feel sorry...", MailType.DELETE_ACCOUNT);
+                logController.log(new Log(LogType.DELETE_ACCOUNT, null, null));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -136,7 +145,7 @@ public class AccountController {
                     return StatusResponse.USER_NOT_FOUND;
                 book.setId(optionalBook.get().getId());
                 userService.addToRead(book, optionalUser.get());
-                logService.save(new Log(LogType.ADD_TO_READ, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.ADD_TO_READ, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -159,7 +168,7 @@ public class AccountController {
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
                 userService.removeToRead(optionalBook.get(), optionalUser.get());
-                logService.save(new Log(LogType.REMOVE_TO_READ, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.REMOVE_TO_READ, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -203,7 +212,7 @@ public class AccountController {
                     return StatusResponse.USER_NOT_FOUND;
                 book.setId(optionalBook.get().getId());
                 userService.addReading(book, optionalUser.get());
-                logService.save(new Log(LogType.ADD_DURING, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.ADD_DURING, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -226,7 +235,7 @@ public class AccountController {
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
                 userService.removeReading(optionalBook.get(), optionalUser.get());
-                logService.save(new Log(LogType.REMOVE_DURING, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.REMOVE_DURING, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -270,7 +279,7 @@ public class AccountController {
                     return StatusResponse.USER_NOT_FOUND;
                 book.setId(optionalBook.get().getId());
                 userService.addHaveRead(book, optionalUser.get());
-                logService.save(new Log(LogType.ADD_DONE, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.ADD_DONE, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -293,7 +302,7 @@ public class AccountController {
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
                 userService.removeHaveRead(optionalBook.get(), optionalUser.get());
-                logService.save(new Log(LogType.REMOVE_DONE, optionalUser.get(), optionalBook.get()));
+                logController.log(new Log(LogType.REMOVE_DONE, optionalUser.get(), optionalBook.get()));
                 return StatusResponse.SUCCESS;
             }
         } catch (GeneralSecurityException | IOException e) {

@@ -1,11 +1,12 @@
-package com.mikolajczyk.book.backend.manager.domain;
+package com.mikolajczyk.redude.backend.domain;
 
-import com.mikolajczyk.book.backend.manager.log.domain.Log;
-import lombok.AllArgsConstructor;
+import com.mikolajczyk.redude.backend.log.domain.Log;
+import com.mikolajczyk.redude.backend.rating.domain.Rating;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @NamedQueries({
@@ -43,7 +44,6 @@ import java.util.List;
         )
 })
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "BOOKS")
 public class Book {
@@ -61,10 +61,11 @@ public class Book {
     private String coverUrl;
     private String priceEbook;
     private String ebookUrl;
-    private List<User> toReadUsers;
-    private List<User> readingUsers;
-    private List<User> haveReadUsers;
-    private List<Log> logs;
+    private List<User> toReadUsers = new ArrayList<>();
+    private List<User> readingUsers = new ArrayList<>();
+    private List<User> haveReadUsers = new ArrayList<>();
+    private List<Log> logs = new ArrayList<>();
+    private List<Rating> ratings = new ArrayList<>();
 
     public Book(String googleId, String isbn, String industryId, String title, String author, String description, String publisher, String published, String categories, String coverUrl, String priceEbook, String ebookUrl) {
         this.googleId = googleId;
@@ -231,12 +232,21 @@ public class Book {
         this.haveReadUsers = haveReadUsers;
     }
 
-    @OneToMany(targetEntity = Log.class, mappedBy = "book")
+    @OneToMany(mappedBy = "book")
     public List<Log> getLogs() {
         return logs;
     }
 
     public void setLogs(List<Log> logs) {
         this.logs = logs;
+    }
+
+    @OneToMany(mappedBy = "book")
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
     }
 }

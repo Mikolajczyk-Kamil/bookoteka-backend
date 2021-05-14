@@ -1,6 +1,6 @@
-package com.mikolajczyk.book.backend.manager.repository;
+package com.mikolajczyk.redude.backend.repository;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
+import com.mikolajczyk.redude.backend.domain.Book;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

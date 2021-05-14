@@ -1,7 +1,7 @@
-package com.mikolajczyk.book.backend.manager.service;
+package com.mikolajczyk.redude.backend.service;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.repository.BookRepository;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class BookService {
     private final BookRepository repository;
 
     public Book saveOrUpdate(Book book) {
-        Optional<Book> result = getByGoogleID(book.getGoogleId());
+        Optional<Book> result = getByGoogleId(book.getGoogleId());
         result.ifPresent(b -> {
             log.info("Book exists in database. Updating...");
             book.setId(result.get().getId());
@@ -32,7 +32,7 @@ public class BookService {
         return repository.findByIsbn(isbn);
     }
 
-    public Optional<Book> getByGoogleID(String googleId) {
+    public Optional<Book> getByGoogleId(String googleId) {
         log.info("Getting book(GOOGLE_ID: " + googleId + ")");
         return repository.findByGoogleId(googleId);
     }
