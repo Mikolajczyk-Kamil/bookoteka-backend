@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Welcome to Redudo!</title>
+</head>
+<body style="background-color: transparent;">
+	<table>
+		<tr>
+			<td>
+				<table style="padding: 20px;">
+					<tr>
+					<td>
+						<h2>Hi <span th:text="${name}"></span>!</h2>
+						<p>We are so happy that you decide to become part of our community.<br>
+						Books are looking for you!</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Thank you, <br>
+						Redudo Team</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Have any questions? Write to us!<br>
+						<span th:text="${email}"></span></p>
+					</td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
