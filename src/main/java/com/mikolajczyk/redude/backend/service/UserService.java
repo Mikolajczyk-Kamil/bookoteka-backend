@@ -1,8 +1,8 @@
-package com.mikolajczyk.book.backend.manager.service;
+package com.mikolajczyk.redude.backend.service;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.domain.User;
-import com.mikolajczyk.book.backend.manager.repository.UserRepository;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.domain.User;
+import com.mikolajczyk.redude.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

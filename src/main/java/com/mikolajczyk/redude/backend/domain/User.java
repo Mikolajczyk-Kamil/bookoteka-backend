@@ -1,16 +1,15 @@
-package com.mikolajczyk.book.backend.manager.domain;
+package com.mikolajczyk.redude.backend.domain;
 
-import com.mikolajczyk.book.backend.manager.log.domain.Log;
-import lombok.AllArgsConstructor;
+import com.mikolajczyk.redude.backend.log.domain.Log;
+import com.mikolajczyk.redude.backend.rating.domain.Rating;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "USERS")
 public class User {
@@ -20,30 +19,35 @@ public class User {
     private String name;
     private String lastname;
     private String email;
-    private String locale;
-    private LocalDate created;
     private String pictureUrl;
-    private List<Book> toRead;
-    private List<Book> reading;
-    private List<Book> haveRead;
-    private List<Log> logs;
+    private List<Book> toRead = new ArrayList<>();
+    private List<Book> reading = new ArrayList<>();
+    private List<Book> haveRead = new ArrayList<>();
+    private List<Log> logs = new ArrayList<>();
+    private List<Rating> ratings = new ArrayList<>();
 
-    public User(String googleId, String name, String lastname, String email, String locale, String pictureUrl) {
+    public User(String googleId, String name, String lastname, String email, String pictureUrl) {
         this.googleId = googleId;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
-        this.locale = locale;
         this.pictureUrl = pictureUrl;
     }
 
-    public User(String googleId, String name, String lastname, String email, String locale, LocalDate created, String pictureUrl) {
+    public User(long id, String googleId, String name, String lastname, String email, String pictureUrl) {
+        this.id = id;
         this.googleId = googleId;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
-        this.locale = locale;
-        this.created = created;
+        this.pictureUrl = pictureUrl;
+    }
+
+    public User(long id, String name, String lastname, String email, String pictureUrl) {
+        this.id = id;
+        this.name = name;
+        this.lastname = lastname;
+        this.email = email;
         this.pictureUrl = pictureUrl;
     }
 
@@ -135,25 +139,6 @@ public class User {
         this.email = email;
     }
 
-    @Column(name = "LOCATE")
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
-    @Column(name = "CREATED")
-    public LocalDate getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDate created) {
-        this.created = created;
-    }
-
-
     @Column(name = "PICTURE_URL")
     public String getPictureUrl() {
         return pictureUrl;
@@ -163,7 +148,7 @@ public class User {
         this.pictureUrl = picture;
     }
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "USERS_BOOKS_TO_READ",
             joinColumns = @JoinColumn(name = "USER_ID"),
@@ -177,7 +162,7 @@ public class User {
         this.toRead = toRead;
     }
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "USERS_BOOKS_READING",
             joinColumns = @JoinColumn(name = "USER_ID"),
@@ -191,7 +176,7 @@ public class User {
         this.reading = reading;
     }
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "USERS_BOOKS_HAVE_READ",
             joinColumns = @JoinColumn(name = "USER_ID"),
@@ -205,12 +190,21 @@ public class User {
         this.haveRead = haveRead;
     }
 
-    @OneToMany(targetEntity = Log.class, mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     public List<Log> getLogs() {
         return logs;
     }
 
     public void setLogs(List<Log> logs) {
         this.logs = logs;
+    }
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
     }
 }

@@ -1,6 +1,6 @@
-package com.mikolajczyk.book.backend.manager.repository;
+package com.mikolajczyk.redude.backend.repository;
 
-import com.mikolajczyk.book.backend.manager.domain.User;
+import com.mikolajczyk.redude.backend.domain.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
