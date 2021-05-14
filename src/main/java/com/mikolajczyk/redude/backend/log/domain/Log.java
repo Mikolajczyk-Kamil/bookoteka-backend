@@ -1,8 +1,8 @@
-package com.mikolajczyk.book.backend.manager.log.domain;
+package com.mikolajczyk.redude.backend.log.domain;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.domain.User;
-import com.mikolajczyk.book.backend.manager.log.type.LogType;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.domain.User;
+import com.mikolajczyk.redude.backend.log.type.LogType;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -59,8 +59,12 @@ public class Log {
         this.dateTime = dateTime;
     }
 
-    @ManyToOne(targetEntity = User.class)
-    @JoinColumn(name = "USER_ID")
+    @ManyToOne(
+            targetEntity = User.class,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
     public User getUser() {
         return user;
     }
@@ -69,8 +73,12 @@ public class Log {
         this.user = user;
     }
 
-    @ManyToOne(targetEntity = Book.class)
-    @JoinColumn(name = "BOOK_ID")
+    @ManyToOne(
+            targetEntity = Book.class,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(name = "BOOK_ID", referencedColumnName = "ID")
     public Book getBook() {
         return book;
     }

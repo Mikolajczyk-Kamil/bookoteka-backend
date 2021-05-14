@@ -1,9 +1,9 @@
-package com.mikolajczyk.book.backend.manager.log.service;
+package com.mikolajczyk.redude.backend.log.service;
 
-import com.mikolajczyk.book.backend.manager.domain.Book;
-import com.mikolajczyk.book.backend.manager.domain.User;
-import com.mikolajczyk.book.backend.manager.log.domain.Log;
-import com.mikolajczyk.book.backend.manager.log.repository.LogRepository;
+import com.mikolajczyk.redude.backend.domain.Book;
+import com.mikolajczyk.redude.backend.domain.User;
+import com.mikolajczyk.redude.backend.log.domain.Log;
+import com.mikolajczyk.redude.backend.log.repository.LogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +29,9 @@ public class LogService {
 
     public void delete(Log log) {
         repository.delete(log);
+    }
+
+    public void deleteAllByUser(User user) {
+        repository.deleteAllByUser(user);
     }
 }
