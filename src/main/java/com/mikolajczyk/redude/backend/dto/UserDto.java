@@ -28,7 +28,7 @@ public class UserDto {
         this.pictureUrl = pictureUrl;
     }
 
-    public UserDto(String googleId, String name, String lastname, String email, String locale, String pictureUrl) {
+    public UserDto(String googleId, String name, String lastname, String email, String pictureUrl) {
         this.googleId = googleId;
         this.name = name;
         this.lastname = lastname;

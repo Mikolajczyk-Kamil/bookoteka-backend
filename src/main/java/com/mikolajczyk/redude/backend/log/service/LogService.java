@@ -27,10 +27,6 @@ public class LogService {
         return repository.findByBook(book);
     }
 
-    public void delete(Log log) {
-        repository.delete(log);
-    }
-
     public void deleteAllByUser(User user) {
         repository.deleteAllByUser(user);
     }

@@ -25,4 +25,11 @@ public class RatingDto {
         this.value = value;
         this.comment = comment;
     }
+
+    public RatingDto(UserDto userDto, BookDto bookDto, int value, String comment) {
+        this.userDto = userDto;
+        this.bookDto = bookDto;
+        this.value = value;
+        this.comment = comment;
+    }
 }

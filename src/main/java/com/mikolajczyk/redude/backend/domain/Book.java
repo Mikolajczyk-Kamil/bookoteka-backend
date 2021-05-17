@@ -82,6 +82,23 @@ public class Book {
         this.ebookUrl = ebookUrl;
     }
 
+    public Book(long id, String isbn, String title, String author, String categories) {
+        this.id = id;
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.categories = categories;
+    }
+
+    public Book(long id, String googleId, String isbn, String title, String author, String categories) {
+        this.id = id;
+        this.googleId = googleId;
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.categories = categories;
+    }
+
     @Id
     @GeneratedValue
     @NotNull

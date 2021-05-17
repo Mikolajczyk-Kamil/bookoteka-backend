@@ -44,7 +44,7 @@ public class TokenVerifier {
             String lastname = (String) payload.get("family_name");
             String pictureUrl = (String) payload.get("picture");
             String locale = (String) payload.get("locale");
-            return mapper.mapToUser(new UserDto(gId, name, lastname, email, locale, pictureUrl));
+            return mapper.mapToUser(new UserDto(gId, name, lastname, email, pictureUrl));
         }
         log.info("User verification failed");
         return null;

@@ -18,12 +18,14 @@ public class ExtendedSearchEngine {
 
     private final GoogleBookMapper mapper;
     private final String source = "https://www.googleapis.com/books/v1/volumes";
+    private final String addons = "&langRestrict=en&maxResults=40&printType=books";
 
     public List<Book> doRequest(String value) throws UnirestException {
         Unirest.setTimeouts(0, 0);
-        value += "&langRestrict=en&maxResults=40&printType=books";
-        HttpResponse<JsonNode> response = Unirest.get(source)
-                .queryString("q", value)
+        value = value.replaceAll(" ", "%20");
+        value = "?q=" + value + addons;
+        String url = source + value;
+        HttpResponse<JsonNode> response = Unirest.get(url)
                 .asJson();
         return parseResponse(response);
     }

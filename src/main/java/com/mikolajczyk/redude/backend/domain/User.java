@@ -1,18 +1,25 @@
 package com.mikolajczyk.redude.backend.domain;
 
+import com.mikolajczyk.redude.backend.interfaces.Observer;
 import com.mikolajczyk.redude.backend.log.domain.Log;
+import com.mikolajczyk.redude.backend.mail.domain.Mail;
 import com.mikolajczyk.redude.backend.rating.domain.Rating;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@NamedQuery(
+        name = "User.getObservers",
+        query = "FROM User WHERE observer = 1"
+)
 @NoArgsConstructor
 @Entity
 @Table(name = "USERS")
-public class User {
+public class User implements Observer {
 
     private long id;
     private String googleId;
@@ -20,6 +27,7 @@ public class User {
     private String lastname;
     private String email;
     private String pictureUrl;
+    private boolean observer;
     private List<Book> toRead = new ArrayList<>();
     private List<Book> reading = new ArrayList<>();
     private List<Book> haveRead = new ArrayList<>();
@@ -146,6 +154,15 @@ public class User {
 
     public void setPictureUrl(String picture) {
         this.pictureUrl = picture;
+    }
+
+    @Column(name = "IS_OBSERVER")
+    public boolean isObserver() {
+        return observer;
+    }
+
+    public void setObserver(boolean observer) {
+        this.observer = observer;
     }
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)

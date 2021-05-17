@@ -28,10 +28,16 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test'){
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'com.google.code.gson:gson'
     implementation group: 'com.google.api-client', name: 'google-api-client', version: '1.31.4'
     implementation group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+
+    compile('io.springfox:springfox-swagger2:2.9.2')
+    compile('io.springfox:springfox-swagger-ui:2.9.2')
 }
 
 test {

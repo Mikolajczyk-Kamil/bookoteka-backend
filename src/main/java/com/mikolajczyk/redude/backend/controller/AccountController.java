@@ -19,6 +19,7 @@ import com.mikolajczyk.redude.backend.service.UserService;
 import com.mikolajczyk.redude.backend.verifier.TokenVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class AccountController {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
                 if (optionalUser.isEmpty()) {
                     log.info("User not found. Sign up new user...");
+                    user.setObserver(true);
                     User result = userService.save(user);
                     mailController.createAndSend(user.getName(), user.getEmail(), "Welcome to Redudo!", MailType.WELCOME);
                     logController.log(new Log(LogType.SIGN_UP, result, null));
@@ -152,7 +154,7 @@ public class AccountController {
             log.error("ERROR WHILE ADDING BOOK FROM 'toRead'");
             e.printStackTrace();
         }
-        return StatusResponse.FAILED;
+        return StatusResponse.VERIFICATION_FAILED;
     }
 
     @DeleteMapping("/toRead/{isbn}")
@@ -219,7 +221,7 @@ public class AccountController {
             log.error("ERROR WHILE ADDING BOOK to 'reading'");
             e.printStackTrace();
         }
-        return StatusResponse.FAILED;
+        return StatusResponse.VERIFICATION_FAILED;
     }
 
     @DeleteMapping("/during/{isbn}")
@@ -242,7 +244,7 @@ public class AccountController {
             log.error("ERROR WHILE REMOVE BOOK FROM 'reading'");
             e.printStackTrace();
         }
-        return StatusResponse.FAILED;
+        return StatusResponse.VERIFICATION_FAILED;
     }
 
     @GetMapping("/done")
@@ -286,7 +288,7 @@ public class AccountController {
             log.error("ERROR WHILE ADDING BOOK to 'haveRead'");
             e.printStackTrace();
         }
-        return StatusResponse.FAILED;
+        return StatusResponse.VERIFICATION_FAILED;
     }
 
     @DeleteMapping("/done/{isbn}")
@@ -309,6 +311,6 @@ public class AccountController {
             log.error("ERROR WHILE REMOVE BOOK FROM 'haveRead'");
             e.printStackTrace();
         }
-        return StatusResponse.FAILED;
+        return StatusResponse.VERIFICATION_FAILED;
     }
 }

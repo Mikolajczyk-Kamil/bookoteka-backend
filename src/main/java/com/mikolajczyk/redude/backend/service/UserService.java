@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -28,12 +29,17 @@ public class UserService {
         return repository.findByGoogleId(googleId);
     }
 
-    public void addToRead(Book book, User user) {
+    public List<User> getObservers() {
+        return repository.getObservers();
+    }
+
+    public User addToRead(Book book, User user) {
         if (!user.getToRead().contains(book)) {
             user.addBookToRead(book);
-            repository.save(user);
             log.info("SUCCESS while adding book to 'toRead'");
+            return repository.save(user);
         }
+        return new User();
     }
 
     public void removeToRead(Book book, User user) {
@@ -42,12 +48,13 @@ public class UserService {
         log.info("SUCCESS while removing book from 'toRead'");
     }
 
-    public void addReading(Book book, User user) {
+    public User addReading(Book book, User user) {
         if (!user.getReading().contains(book)) {
             user.addBookReading(book);
-            repository.save(user);
             log.info("SUCCESS while adding book to 'during'");
+            return repository.save(user);
         }
+        return new User();
     }
 
     public void removeReading(Book book, User user) {
@@ -56,12 +63,13 @@ public class UserService {
         log.info("SUCCESS while removing book from 'during'");
     }
 
-    public void addHaveRead(Book book, User user) {
+    public User addHaveRead(Book book, User user) {
         if (!user.getHaveRead().contains(book)) {
             user.addBookHaveRead(book);
-            repository.save(user);
             log.info("SUCCESS while adding book to 'haveRead'");
+            return repository.save(user);
         }
+        return new User();
     }
 
     public void removeHaveRead(Book book, User user) {

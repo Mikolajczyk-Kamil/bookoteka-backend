@@ -88,7 +88,7 @@ public class BookController {
     }
 
     @PostMapping(value = "/{googleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StatusResponse rateBook(@PathVariable String googleId, @RequestBody RatingDto ratingDto, @RequestHeader String token) {
+    public StatusResponse rateBook(@PathVariable String googleId, @RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to rate book(GOOGLE_ID: " + googleId + ")...");
         try {
             User user = verifier.verify(token);
@@ -121,7 +121,7 @@ public class BookController {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StatusResponse updateRating(@RequestBody RatingDto ratingDto, @RequestHeader String token) {
+    public StatusResponse updateRating(@RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to update rating...");
         try {
             User user = verifier.verify(token);
@@ -150,7 +150,7 @@ public class BookController {
     }
 
     @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StatusResponse deleteRating(@RequestBody RatingDto ratingDto, @RequestHeader String token) {
+    public StatusResponse deleteRating(@RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to delete rating...");
         try {
             User user = verifier.verify(token);

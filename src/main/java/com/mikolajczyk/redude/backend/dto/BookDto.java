@@ -45,9 +45,11 @@ public class BookDto {
         this.ebookUrl = ebookUrl;
     }
 
-    public BookDto(String title, String author, List<RatingDto> ratingsDto) {
+    public BookDto(String googleId, String title, String author) {
+        this.googleId = googleId;
         this.title = title;
         this.author = author;
-        this.ratingsDto = ratingsDto;
     }
+
+
 }
