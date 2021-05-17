@@ -15,27 +15,25 @@ public class MailController {
     private final MailCreatorService mailCreatorService;
 
     public void createAndSend(String name, String mailTo, String subject, MailType mailType) {
-        send(
-                Mail.builder()
-                        .mailTo(mailTo)
-                        .subject(subject)
-                        .build(), mailType, name
-        );
-    }
-
-    public void send(Mail mail, MailType mailType, String name) {
         if (mailType.equals(MailType.WELCOME)) {
             mailService.send(Mail.builder()
-                    .mailTo(mail.getMailTo())
-                    .subject(mail.getSubject())
-                    .message(mailCreatorService.buildWelcomeEmail(mail.getMessage(), name))
+                    .mailTo(mailTo)
+                    .subject(subject)
+                    .message(mailCreatorService.buildWelcomeEmail(name))
+                    .build()
+            );
+        } else if (mailType.equals(MailType.WEEK)) {
+            mailService.send(Mail.builder()
+                    .mailTo(mailTo)
+                    .subject(subject)
+                    .message(mailCreatorService.buildWeekEmail(name))
                     .build()
             );
         } else if (mailType.equals(MailType.DELETE_ACCOUNT)) {
             mailService.send(Mail.builder()
-                    .mailTo(mail.getMailTo())
-                    .subject(mail.getSubject())
-                    .message(mailCreatorService.buildDeleteAccountEmail(mail.getMessage(), name))
+                    .mailTo(mailTo)
+                    .subject(subject)
+                    .message(mailCreatorService.buildDeleteAccountEmail(name))
                     .build()
             );
         }

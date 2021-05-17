@@ -16,19 +16,22 @@ public class MailCreatorService {
     @Qualifier("templateEngine")
     private final TemplateEngine templateEngine;
 
-    public String buildWelcomeEmail(String message, String name) {
-        return templateEngine.process("mail/welcome_template.html", prepareContext(message, name));
+    public String buildWelcomeEmail(String name) {
+        return templateEngine.process("mail/welcome_template.html", prepareContext(name));
     }
 
-    public String buildDeleteAccountEmail(String message, String name) {
-        return templateEngine.process("mail/delete_account_template.html", prepareContext(message, name));
+    public String buildWeekEmail(String name) {
+        return templateEngine.process("mail/week_template.html", prepareContext(name));
     }
 
-    private Context prepareContext(String message, String name) {
+    public String buildDeleteAccountEmail(String name) {
+        return templateEngine.process("mail/delete_account_template.html", prepareContext(name));
+    }
+
+    private Context prepareContext(String name) {
         Context context = new Context();
         context.setVariable("name", name);
         context.setVariable("email", adminConfig.getAdminMail());
-        context.setVariable("message", message);
         return context;
     }
 }

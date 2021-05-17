@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Message...</title>
+</head>
+<body style="background-color: transparent;">
+<table>
+    <tr>
+        <td>
+            <table style="padding: 20px;">
+                <tr>
+                    <td>
+                        <h2>Hi <span th:text="${name}"></span>!</h2>
+                        <p>We just wanna you to know that without you Redudo is not exists. <br>
+                        Remember it and come to see all fantastic books waiting for you!</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>Thank you, <br>
+                            Redudo Team</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>Have any questions? Write to us!<br>
+                            <span th:text="${email}"></span></p>
+                        <p>If you do not want to receive such emails in the future, please <a href="#">unsubscribe</a></p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
