@@ -87,6 +87,32 @@ public class BookController {
         return new ApiResponse(null, StatusResponse.VERIFICATION_FAILED);
     }
 
+    @GetMapping("/{bookId}")
+    public ApiResponse getBookRating(@PathVariable String bookId, @RequestHeader("Authorization") String token ){
+        log.info("Trying to get rating(BOOK_ID: " + bookId + ")...");
+        try {
+            User user = verifier.verify(token);
+            if (user != null) {
+                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+                Optional<Book> optionalBook = bookService.getByGoogleId(bookId);
+                if (optionalBook.isEmpty()) {
+                    log.info("Book not found");
+                    return new ApiResponse(null, StatusResponse.BOOK_NOT_FOUND);
+                }
+                if (optionalUser.isEmpty()) {
+                    log.info("User not found");
+                    return new ApiResponse(null, StatusResponse.USER_NOT_FOUND);
+                }
+                List<Rating> bookRatings = ratingService.getAllRatingsByBook(optionalBook.get());
+                log.info("SUCCESS");
+                return new ApiResponse(ratingMapper.mapToListRatingDto(bookRatings), StatusResponse.SUCCESS);
+            }
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+        }
+        return new ApiResponse(null, StatusResponse.VERIFICATION_FAILED);
+    }
+
     @PostMapping(value = "/{googleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public StatusResponse rateBook(@PathVariable String googleId, @RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to rate book(GOOGLE_ID: " + googleId + ")...");
