@@ -23,7 +23,8 @@ public class BookService {
             book.setId(result.get().getId());
         });
         log.info("Saving book(GOOGLE_ID: " + book.getGoogleId() + ")...");
-        book.setCategories(book.getCategories().toLowerCase());
+        if (book.getCategories() != null)
+            book.setCategories(book.getCategories().toLowerCase());
         return repository.save(book);
     }
 

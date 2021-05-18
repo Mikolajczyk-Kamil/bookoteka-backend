@@ -118,11 +118,12 @@ public class AccountController {
             if (user != null) {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
                 Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByIsbn(book.getIsbn());
+                Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
                 if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
+                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
+                optionalBook = bookService.getByGoogleId(book.getGoogleId());
                 book.setId(optionalBook.get().getId());
                 userService.addToRead(book, optionalUser.get());
                 logController.log(new Log(LogType.ADD_TO_READ, optionalUser.get(), optionalBook.get()));
@@ -135,14 +136,14 @@ public class AccountController {
         return StatusResponse.VERIFICATION_FAILED;
     }
 
-    @DeleteMapping("/toRead/{isbn}")
-    public StatusResponse removeToRead(@PathVariable String isbn, @RequestHeader("Authorization") String token) {
+    @DeleteMapping("/toRead/{googleId}")
+    public StatusResponse removeToRead(@PathVariable String googleId, @RequestHeader("Authorization") String token) {
         log.info("Trying to remove from 'toRead'");
         try {
             User user = verifier.verify(token);
             if (user != null) {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Optional<Book> optionalBook = bookService.getByIsbn(isbn);
+                Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
                 if (optionalBook.isEmpty())
                     return StatusResponse.BOOK_NOT_FOUND;
                 if (optionalUser.isEmpty())
@@ -185,11 +186,12 @@ public class AccountController {
             if (user != null) {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
                 Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByIsbn(book.getIsbn());
+                Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
                 if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
+                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
+                optionalBook = bookService.getByGoogleId(book.getGoogleId());
                 book.setId(optionalBook.get().getId());
                 userService.addReading(book, optionalUser.get());
                 logController.log(new Log(LogType.ADD_DURING, optionalUser.get(), optionalBook.get()));
@@ -252,11 +254,12 @@ public class AccountController {
             if (user != null) {
                 Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
                 Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByIsbn(book.getIsbn());
+                Optional<Book> optionalBook = bookService.getByIsbn(book.getGoogleId());
                 if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
+                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
                 if (optionalUser.isEmpty())
                     return StatusResponse.USER_NOT_FOUND;
+                optionalBook = bookService.getByIsbn(book.getGoogleId());
                 book.setId(optionalBook.get().getId());
                 userService.addHaveRead(book, optionalUser.get());
                 logController.log(new Log(LogType.ADD_DONE, optionalUser.get(), optionalBook.get()));
