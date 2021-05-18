@@ -103,31 +103,6 @@ public class AccountControllerTestSuite {
     }
 
     @Test
-    public void testUpdateShouldFetchUserDto() throws Exception {
-        //Given
-        User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        UserDto userDto = new UserDto(1L, "name1", "lastname1", "email1", "pictureUrl1");
-        String jsonContent = new Gson().toJson(userDto);
-        when(verifier.verify(any())).thenReturn(user);
-        when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
-        doNothing().when(logController).log(any());
-        when(userMapper.mapToUserDto(any())).thenReturn(userDto);
-
-        //When & Then
-        mockMvc.perform(
-                MockMvcRequestBuilders.put(apiRoot)
-                        .header("Authorization", "token")
-                        .content(jsonContent)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.is("name1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.lastname", Matchers.is("lastname1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.is("email1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pictureUrl", Matchers.is("pictureUrl1")));
-    }
-
-    @Test
     public void testDeleteShouldFetchSuccess() throws Exception {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");

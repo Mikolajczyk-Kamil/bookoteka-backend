@@ -69,28 +69,6 @@ public class AccountController {
         return LoginResponse.FAILED;
     }
 
-    @PutMapping
-    public UserDto update(@RequestBody UserDto userDto, @RequestHeader("Authorization") String token) {
-        log.info("Trying to update account...");
-        try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                log.info("Updating user...");
-                Optional<User> result = userService.getByGoogleId(userDto.getGoogleId());
-                if (result.isEmpty())
-                    return null;
-                userDto.setId(result.get().getId());
-                log.info(StatusResponse.SUCCESS.toString());
-                logController.log(new Log(LogType.UPDATE_ACCOUNT, result.get(), null));
-                return userMapper.mapToUserDto(userService.save(userMapper.mapToUser(userDto)));
-            }
-        } catch (GeneralSecurityException | IOException e) {
-            log.error("ERROR WHILE UPDATING USER(GOOGLE_ID: " + userDto.getGoogleId() + ")");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @DeleteMapping
     public StatusResponse delete(@RequestHeader("Authorization") String token) {
         try {

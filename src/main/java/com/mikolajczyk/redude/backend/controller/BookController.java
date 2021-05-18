@@ -146,35 +146,6 @@ public class BookController {
         return StatusResponse.VERIFICATION_FAILED;
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public StatusResponse updateRating(@RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
-        log.info("Trying to update rating...");
-        try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Optional<Book> optionalBook = bookService.getByGoogleId(ratingDto.getBookDto().getGoogleId());
-                if (optionalBook.isEmpty()) {
-                    log.info("Book not found");
-                    return StatusResponse.BOOK_NOT_FOUND;
-                }
-                if (optionalUser.isEmpty()) {
-                    log.info("User not found");
-                    return StatusResponse.USER_NOT_FOUND;
-                }
-                Rating rating = ratingMapper.mapToRating(ratingDto);
-                ratingService.save(rating);
-                log.info("SUCCESS");
-                logController.log(new Log(LogType.UPDATE_RATING ,optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
-        } catch (GeneralSecurityException | IOException e) {
-            log.error("ERROR WHILE UPDATE RATING");
-            e.printStackTrace();
-        }
-        return StatusResponse.VERIFICATION_FAILED;
-    }
-
     @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public StatusResponse deleteRating(@RequestBody RatingDto ratingDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to delete rating...");
