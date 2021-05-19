@@ -35,44 +35,45 @@ To run project just save repository on your disc and compile in your development
 Endpoints
 ---
 ###### Authorization by the "Authorization" header with token value from Login via Google
+###### `METHOD path` `authorization required` `[bodyRequest] class` `returType onSuccess / onFailed`
 ### Account endpoints
-`POST /v1/account` `authorization required`\
+`POST /v1/account` `authorization required` `long userId/0`\
 Sign in or sing up new user
 
-`DELETE /v1/account` `authorization required`\
+`DELETE /v1/account` `authorization required` `long userId/0`\
 Delete account
 
-`GET /v1/account/toRead` `authorization required`\
+`GET /v1/account/toRead` `authorization required` `List<BookDto> booksDto/emptyList`\
 Get user books from 'to read' list
 
-`PUT /v1/account/toRead` `authorization required` `body : BookDto`\
+`PUT /v1/account/toRead` `authorization required` `BookDto` `long bookId/0`\
 Add the book to user 'to read' list
 
 `DELETE /v1/account/toRead/{googleId}` `authorization required`\
 Remove the book from user 'to read' list by its google-id
 
-`GET /v1/account/during` `authorization required`\
+`GET /v1/account/during` `authorization required` `List<BookDto> booksDto/emptyList`\
 Get user books from 'already reading' list
 
-`PUT /v1/account/during` `authorization required` `body : BookDto`\
+`PUT /v1/account/during` `authorization required` `BookDto`\
 Add the book to user 'already reading' list
 
-`DELETE /v1/account/during/{googleId}` `authorization required`\
+`DELETE /v1/account/during/{googleId}` `authorization required` `long bookId/0`\
 Remove the book from user 'already reading' list by its google-id
 
-`GET /v1/account/done` `authorization required`\
+`GET /v1/account/done` `authorization required` `List<BookDto> booksDto/emptyList`\
 Get user books from 'done' list
 
-`PUT /v1/account/done` `authorization required` `body : BookDto`\
+`PUT /v1/account/done` `authorization required` `BookDto` `long bookId/0`\
 Add the book to user 'done' list
 
-`DELETE /v1/account/done/{googleId}` `authorization required`\
+`DELETE /v1/account/done/{googleId}` `authorization required` `long bookId/0`\
 Remove the book from user 'done' list by its google-id
 
 ### Books endpoints
 
-`GET /v1/books` `authorization required`\
-Get list of books by:
+`GET /v1/books` `authorization required` `List<BookDto> booksDto/emptyList`\
+Get list of books by path variable:
 * any phrase `q`
 * title `title`
 * author `author`
@@ -84,19 +85,19 @@ Param `external=true` forces searching only in Google Books database.\
 Params can be mixed.
 
 
-`GET /v1/books/{googleId}` `authorization required`\
+`GET /v1/books/{googleId}` `authorization required` `List<RatingDto> ratings/emptyList`\
 Get the book rating by its googleId 
 
-`POST /v1/books/{googleId}` `authorization required` `body : RatingDto`\
+`POST /v1/books/{googleId}` `authorization required` `RatingDto` `long ratingId/0`\
 Post the book rating by its googleId 
 
-`DELETE /v1/books` `authorization required` `body : RatingDto`\
+`DELETE /v1/books` `authorization required` `RatingDto` `long ratingId/0`\
 Delete the book rating
 
 ### Currencies endpoints
 
-`GET /v1/currency` \
+`GET /v1/currency` `Map<String, Float> currenciesMap/emptyMap`\
 Get current value of EUR, GBP and USD
 
-`GET /v1/currency/{code}`\
+`GET /v1/currency/{code}` `float currency/0`\
 Get current value of EUR/GBP/USD
