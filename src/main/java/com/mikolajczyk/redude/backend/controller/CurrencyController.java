@@ -23,7 +23,7 @@ public class CurrencyController {
     private final CurrencyService service;
 
     @GetMapping
-    public ApiResponse getCurrencies() {
+    public Map<String, Float> getCurrencies() {
         log.info("Trying to get current currencies...");
         Map<String, Float> currencies = new HashMap<>();
         try {
@@ -31,25 +31,25 @@ public class CurrencyController {
             currencies.put("GBP", service.getCurrentValueOfCurrency(CurrencyType.GBP));
             currencies.put("USD", service.getCurrentValueOfCurrency(CurrencyType.USD));
             log.info("SUCCESS");
-            return new ApiResponse(currencies, StatusResponse.SUCCESS);
+            return currencies;
         } catch (UnirestException e) {
             log.info("ERROR WHILE GETTING CURRENT CURRENCIES");
             e.printStackTrace();
         }
-        return new ApiResponse(null, StatusResponse.FAILED);
+        return new HashMap<>();
     }
 
     @GetMapping("/{code}")
-    public ApiResponse getCurrency(@PathVariable CurrencyType code) {
+    public Float getCurrency(@PathVariable CurrencyType code) {
         log.info("Trying to get current value of currency: " + code);
         try {
             float value = service.getCurrentValueOfCurrency(code);
             log.info("SUCCESS");
-            return new ApiResponse(value, StatusResponse.SUCCESS);
+            return value;
         } catch (UnirestException e) {
             log.info("ERROR WHILE GETTING CURRENT VALUE OF: " + code);
             e.printStackTrace();
         }
-        return new ApiResponse(null, StatusResponse.FAILED);
+        return 0f;
     }
 }

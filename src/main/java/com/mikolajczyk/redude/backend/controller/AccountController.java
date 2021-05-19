@@ -10,7 +10,6 @@ import com.mikolajczyk.redude.backend.log.type.LogType;
 import com.mikolajczyk.redude.backend.mail.controller.MailController;
 import com.mikolajczyk.redude.backend.mail.type.MailType;
 import com.mikolajczyk.redude.backend.mapper.BookMapper;
-import com.mikolajczyk.redude.backend.mapper.UserMapper;
 import com.mikolajczyk.redude.backend.service.BookService;
 import com.mikolajczyk.redude.backend.rating.service.RatingService;
 import com.mikolajczyk.redude.backend.service.UserService;

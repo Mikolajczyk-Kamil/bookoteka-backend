@@ -35,9 +35,9 @@ public class CurrencyControllerTestSuite {
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/currency"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.EUR", Matchers.is(4.5)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.GBP", Matchers.is(5.0)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.USD", Matchers.is(3.5)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.EUR", Matchers.is(4.5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.GBP", Matchers.is(5.0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.USD", Matchers.is(3.5)));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CurrencyControllerTestSuite {
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/currency/EUR"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", Matchers.is(4.5)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is(4.5)));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class CurrencyControllerTestSuite {
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/currency/GBP"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", Matchers.is(5.0)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is(5.0)));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class CurrencyControllerTestSuite {
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/currency/USD"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data", Matchers.is(3.5)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is(3.5)));
     }
 
     @Test
