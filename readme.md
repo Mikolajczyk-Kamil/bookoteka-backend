@@ -35,7 +35,7 @@ To run project just save repository on your disc and compile in your development
 Endpoints
 ---
 ###### Authorization by the "Authorization" header with token value from Login via Google
-###### `METHOD path` `authorization required` `[bodyRequest] class` `returType onSuccess / onFailed`
+###### `METHOD path` `authorization required` `[bodyRequest] class` `returnType onSuccess / onFailed`
 ### Account endpoints
 `POST /v1/account` `authorization required` `long userId/0`\
 Sign in or sing up new user
