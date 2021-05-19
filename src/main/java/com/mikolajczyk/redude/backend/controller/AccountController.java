@@ -130,12 +130,9 @@ public class AccountController {
             Book book = bookMapper.mapToBook(bookDto);
             Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
             if (optionalUser.isPresent()) {
-                if (optionalBook.isEmpty()) {
-                    log.info("Adding new book to database...");
-                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                }
+                if (optionalBook.isPresent())
+                    book = optionalBook.get();
                 user = userService.addToRead(book, optionalUser.get());
-                book = optionalBook.get();
                 logController.log(new Log(LogType.ADD_TO_READ, user, book));
                 log.info("SUCCESS");
                 return book.getId();
@@ -207,10 +204,8 @@ public class AccountController {
             Book book = bookMapper.mapToBook(bookDto);
             Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
             if (optionalUser.isPresent()) {
-                if (optionalBook.isEmpty()) {
-                    log.info("Adding new book to database...");
-                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                }
+                if (optionalBook.isPresent())
+                    book = optionalBook.get();
                 user = userService.addReading(book, optionalUser.get());
                 book = optionalBook.get();
                 logController.log(new Log(LogType.ADD_DURING, user, book));
@@ -285,10 +280,8 @@ public class AccountController {
             Book book = bookMapper.mapToBook(bookDto);
             Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
             if (optionalUser.isPresent()) {
-                if (optionalBook.isEmpty()) {
-                    log.info("Adding new book to database...");
-                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                }
+                if (optionalBook.isPresent())
+                    book = optionalBook.get();
                 user = userService.addHaveRead(book, optionalUser.get());
                 book = optionalBook.get();
                 logController.log(new Log(LogType.ADD_DONE, user, book));

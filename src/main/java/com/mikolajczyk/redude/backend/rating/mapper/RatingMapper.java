@@ -37,6 +37,16 @@ public class RatingMapper {
         );
     }
 
+    public Rating mapToRatingWithoutUser(RatingDto ratingDto) {
+        return new Rating(
+                ratingDto.getId(),
+                null,
+                bookMapper.mapToBook(ratingDto.getBookDto()),
+                ratingDto.getValue(),
+                ratingDto.getComment()
+        );
+    }
+
     public List<RatingDto> mapToListRatingDto(List<Rating> ratings) {
         return ratings.stream().map(this::mapToRatingDto).collect(Collectors.toList());
     }

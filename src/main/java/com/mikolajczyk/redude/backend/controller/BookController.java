@@ -128,17 +128,10 @@ public class BookController {
             Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
             if (optionalUser.isPresent()) {
                 Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
-                Rating rating = ratingMapper.mapToRating(ratingDto);
-                Book book;
-                if (optionalBook.isEmpty()) {
-                    if (rating.getBook() != null) {
-                        log.info("Adding new book to database...");
-                        book = bookService.saveOrUpdate(rating.getBook());
-                    } else {
-                        log.info("Book not found");
-                        return 0;
-                    }
-                } else
+                Rating rating = ratingMapper.mapToRatingWithoutUser(ratingDto);
+                rating.setUser(optionalUser.get());
+                Book book = rating.getBook();
+                if (optionalBook.isPresent())
                     book = optionalBook.get();
                 rating.setUser(optionalUser.get());
                 rating.setBook(book);
