@@ -82,18 +82,9 @@ public class Book {
         this.ebookUrl = ebookUrl;
     }
 
-    public Book(long id, String isbn, String title, String author, String categories) {
-        this.id = id;
-        this.isbn = isbn;
-        this.title = title;
-        this.author = author;
-        this.categories = categories;
-    }
-
-    public Book(long id, String googleId, String isbn, String title, String author, String categories) {
+    public Book(long id, String googleId, String title, String author, String categories) {
         this.id = id;
         this.googleId = googleId;
-        this.isbn = isbn;
         this.title = title;
         this.author = author;
         this.categories = categories;
@@ -159,7 +150,7 @@ public class Book {
         this.author = author;
     }
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", length = 1000)
     public String getDescription() {
         return description;
     }

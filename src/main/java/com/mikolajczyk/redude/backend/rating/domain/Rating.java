@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "RATINGS")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Rating {
 
     private long id;
@@ -18,13 +19,6 @@ public class Rating {
     private Book book;
     private int value;
     private String comment;
-
-    public Rating(User user, Book book, int value, String comment) {
-        this.user = user;
-        this.book = book;
-        this.value = value;
-        this.comment = comment;
-    }
 
     @Id
     @GeneratedValue
@@ -54,7 +48,7 @@ public class Rating {
     @ManyToOne(
             targetEntity = Book.class,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-            )
+    )
     @JoinColumn(name = "BOOK_ID", referencedColumnName = "ID")
     public Book getBook() {
         return book;

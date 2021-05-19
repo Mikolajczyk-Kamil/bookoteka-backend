@@ -20,18 +20,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -44,29 +43,52 @@ public class BookControllerTestSuite {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
+    private BookMapper bookMapper;
+    @MockBean
+    private ExtendedSearchService extendedSearchService;
+    @MockBean
     private TokenVerifier verifier;
     @MockBean
     private UserService userService;
     @MockBean
     private BookService bookService;
     @MockBean
-    private BookMapper bookMapper;
-    @MockBean
     private RatingMapper ratingMapper;
     @MockBean
     private RatingService ratingService;
     @MockBean
-    private ExtendedSearchService extendedSearchService;
-    @MockBean
     private LogController logController;
+
+    @Test
+    public void testGetBookShouldFetchSuccess() throws Exception {
+        //Given
+        User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        String q = "query";
+        when(verifier.verify(any())).thenReturn(user);
+        when(extendedSearchService.getBooksByQuery(any(), anyBoolean())).thenReturn(List.of(book));
+        when(bookMapper.mapToListBookDto(any())).thenReturn(List.of(bookDto));
+        doNothing().when(logController).log(any());
+
+        //When & Then
+        mockMvc.perform(MockMvcRequestBuilders.get(apiRoot)
+                .header("Authorization", "token")
+                .queryParam("q", q))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)));
+    }
 
     @Test
     public void testRateBookShouldFetchSuccess() throws Exception {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
+        UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
-        Rating rating = new Rating(user, book, 10, "comment1");
-        String jsonContent = new Gson().toJson(rating);
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
+        String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
         when(bookService.getByGoogleId(any())).thenReturn(Optional.of(book));
@@ -80,19 +102,26 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("SUCCESS")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.greaterThan(0)));
     }
 
     @Test
     public void testRateBookShouldFetchBookNotFound() throws Exception {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
+        UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
-        Rating rating = new Rating(user, book, 10, "comment1");
-        String jsonContent = new Gson().toJson(rating);
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
+        String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
         when(bookService.getByGoogleId(any())).thenReturn(Optional.empty());
+        when(bookService.saveOrUpdate(any())).thenReturn(book);
+        when(ratingMapper.mapToRating(any())).thenReturn(rating);
+        when(ratingService.save(any())).thenReturn(rating);
+        doNothing().when(logController).log(any());
 
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.post(apiRoot + "/googleId1")
@@ -100,19 +129,21 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("BOOK_NOT_FOUND")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.greaterThan(0)));
     }
 
     @Test
     public void testRateBookShouldFetchUserNotFound() throws Exception {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
+        UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
-        Rating rating = new Rating(user, book, 10, "comment1");
-        String jsonContent = new Gson().toJson(rating);
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
+        String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.empty());
-        when(bookService.getByGoogleId(any())).thenReturn(Optional.of(book));
 
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.post(apiRoot + "/googleId1")
@@ -120,16 +151,19 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("USER_NOT_FOUND")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 
     @Test
     public void testRateBookShouldFetchVerificationFailed() throws Exception {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
+        UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
-        Rating rating = new Rating(user, book, 10, "comment1");
-        String jsonContent = new Gson().toJson(rating);
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
+        String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(null);
 
         //When & Then
@@ -138,7 +172,7 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("VERIFICATION_FAILED")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 
     @Test
@@ -146,10 +180,10 @@ public class BookControllerTestSuite {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        Book book = new Book(2L, "googleId1", "isbn1", "title1", "author1", "categories1");
-        BookDto bookDto = new BookDto("googleId1", "title1", "author1");
-        Rating rating = new Rating(user, book, 10, "comment1");
-        RatingDto ratingDto = new RatingDto(userDto, bookDto, 10, "comment1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
         String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
@@ -164,7 +198,7 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("SUCCESS")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.greaterThan(0)));
     }
 
     @Test
@@ -172,9 +206,10 @@ public class BookControllerTestSuite {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        Book book = new Book(2L, "googleId1", "isbn1", "title1", "author1", "categories1");
-        BookDto bookDto = new BookDto("googleId1", "title1", "author1");
-        RatingDto ratingDto = new RatingDto(userDto, bookDto, 10, "comment1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
         String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
@@ -186,7 +221,7 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("BOOK_NOT_FOUND")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 
     @Test
@@ -194,13 +229,13 @@ public class BookControllerTestSuite {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        Book book = new Book(2L, "googleId1", "isbn1", "title1", "author1", "categories1");
-        BookDto bookDto = new BookDto("googleId1", "title1", "author1");
-        RatingDto ratingDto = new RatingDto(userDto, bookDto, 10, "comment1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
         String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.empty());
-        when(bookService.getByGoogleId(any())).thenReturn(Optional.of(book));
 
         //When & Then
         mockMvc.perform(MockMvcRequestBuilders.delete(apiRoot)
@@ -208,7 +243,7 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("USER_NOT_FOUND")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 
     @Test
@@ -216,9 +251,10 @@ public class BookControllerTestSuite {
         //Given
         User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        Book book = new Book(2L, "googleId1", "isbn1", "title1", "author1", "categories1");
-        BookDto bookDto = new BookDto("googleId1", "title1", "author1");
-        RatingDto ratingDto = new RatingDto(userDto, bookDto, 10, "comment1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
         String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(user);
         when(userService.getByGoogleId(any())).thenReturn(Optional.of(user));
@@ -231,15 +267,18 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("FAILED")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 
     @Test
     public void testDeleteRatingShouldFetchVerificationFailed() throws Exception {
         //Given
+        User user = new User(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
         UserDto userDto = new UserDto(1L, "googleId1", "name1", "lastname1", "email1", "pictureUrl1");
-        BookDto bookDto = new BookDto("googleId1", "title1", "author1");
-        RatingDto ratingDto = new RatingDto(userDto, bookDto, 10, "comment1");
+        Book book = new Book(2L, "isbn1", "title1", "author1", "categories1");
+        BookDto bookDto = new BookDto("googleId", "title1", "author1", "categories1");
+        Rating rating = new Rating(1L, user, book, 10, "comment1");
+        RatingDto ratingDto = new RatingDto(1L, userDto, bookDto, 10, "comment1");
         String jsonContent = new Gson().toJson(ratingDto);
         when(verifier.verify(any())).thenReturn(null);
 
@@ -249,6 +288,6 @@ public class BookControllerTestSuite {
                 .content(jsonContent)
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.is("VERIFICATION_FAILED")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.equalTo(0)));
     }
 }

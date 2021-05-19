@@ -30,7 +30,7 @@ public class BookServiceTestSuite {
     @Test
     public void testSaveOrUpdate() {
         //Given
-        Book book = new Book(10L,"isbn1","Title1", "Author1", "Categories1");
+        Book book = new Book(10L,"googleId1","Title1", "Author1", "Categories1");
         Optional<Book> optionalBook = Optional.of(book);
         when(bookRepository.findByGoogleId(any())).thenReturn(optionalBook);
         when(bookRepository.save(any())).thenReturn(book);
@@ -40,7 +40,7 @@ public class BookServiceTestSuite {
 
         //Then
         assertEquals(10L, result.getId());
-        assertEquals("isbn1", result.getIsbn());
+        assertEquals("googleId1", result.getGoogleId());
         assertEquals("Title1", result.getTitle());
         assertEquals("Author1", result.getAuthor());
         assertEquals("categories1", result.getCategories());
@@ -49,7 +49,7 @@ public class BookServiceTestSuite {
     @Test
     public void testGetByIsbn() {
         //Given
-        Optional<Book> optionalBook = Optional.of(new Book(1L,"isbn1","Title1", "Author1", "Categories1"));
+        Optional<Book> optionalBook = Optional.of(new Book(1L,"googleId1","Title1", "Author1", "Categories1"));
         when(bookRepository.findByIsbn(any())).thenReturn(optionalBook);
 
         //When
@@ -58,7 +58,7 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
-        assertEquals("isbn1", result.get().getIsbn());
+        assertEquals("googleId1", result.get().getGoogleId());
         assertEquals("Title1", result.get().getTitle());
         assertEquals("Author1", result.get().getAuthor());
         assertEquals("Categories1", result.get().getCategories());
@@ -67,7 +67,7 @@ public class BookServiceTestSuite {
     @Test
     public void testGetByGoogleId() {
         //Given
-        Optional<Book> optionalBook = Optional.of(new Book(1L,"isbn1","Title1", "Author1", "Categories1"));
+        Optional<Book> optionalBook = Optional.of(new Book(1L,"googleId1","Title1", "Author1", "Categories1"));
         when(bookRepository.findByGoogleId(any())).thenReturn(optionalBook);
 
         //When
@@ -76,7 +76,7 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
-        assertEquals("isbn1", result.get().getIsbn());
+        assertEquals("googleId1", result.get().getGoogleId());
         assertEquals("Title1", result.get().getTitle());
         assertEquals("Author1", result.get().getAuthor());
         assertEquals("Categories1", result.get().getCategories());
@@ -85,8 +85,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByTitle() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByTitle("Title")).thenReturn(booksList);
 
@@ -96,12 +96,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -110,8 +110,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByAuthor() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByAuthor("Author1")).thenReturn(booksList);
 
@@ -121,12 +121,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -135,8 +135,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByCategory() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByCategory("Category")).thenReturn(booksList);
 
@@ -146,12 +146,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -160,8 +160,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByQ() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByQ("tit")).thenReturn(booksList);
 
@@ -171,12 +171,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -185,8 +185,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByTitleAuthorCategory() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByTitleAndAuthorAndCategory("title", "author", "category")).thenReturn(booksList);
 
@@ -196,12 +196,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -210,8 +210,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByTitleAuthor() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByTitleAndAuthor("title", "author")).thenReturn(booksList);
 
@@ -221,12 +221,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -235,8 +235,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByTitleCategory() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByTitleAndCategory("title",  "category")).thenReturn(booksList);
 
@@ -246,12 +246,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());
@@ -260,8 +260,8 @@ public class BookServiceTestSuite {
     @Test
     public void testGetAllByAuthorCategory() {
         //Given
-        Book book1 = new Book(1L,"isbn1","Title1", "Author1", "Categories1");
-        Book book2 = new Book(2L,"isbn2","Title2", "Author2", "Categories2");
+        Book book1 = new Book(1L,"googleId1","Title1", "Author1", "Categories1");
+        Book book2 = new Book(2L,"googleId2","Title2", "Author2", "Categories2");
         List<Book> booksList = List.of(book1, book2);
         when(bookRepository.findAllByAuthorAndCategory("author", "category")).thenReturn(booksList);
 
@@ -271,12 +271,12 @@ public class BookServiceTestSuite {
         //Then
         assertTrue(result.size() > 1);
         assertEquals(1L, result.get(0).getId());
-        assertEquals("isbn1", result.get(0).getIsbn());
+        assertEquals("googleId1", result.get(0).getGoogleId());
         assertEquals("Title1", result.get(0).getTitle());
         assertEquals("Author1", result.get(0).getAuthor());
         assertEquals("Categories1", result.get(0).getCategories());
         assertEquals(2L, result.get(1).getId());
-        assertEquals("isbn2", result.get(1).getIsbn());
+        assertEquals("googleId2", result.get(1).getGoogleId());
         assertEquals("Title2", result.get(1).getTitle());
         assertEquals("Author2", result.get(1).getAuthor());
         assertEquals("Categories2", result.get(1).getCategories());

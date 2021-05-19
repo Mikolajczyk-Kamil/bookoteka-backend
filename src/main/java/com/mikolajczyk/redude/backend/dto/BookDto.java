@@ -45,11 +45,10 @@ public class BookDto {
         this.ebookUrl = ebookUrl;
     }
 
-    public BookDto(String googleId, String title, String author) {
+    public BookDto(String googleId, String title, String author, String categories) {
         this.googleId = googleId;
         this.title = title;
         this.author = author;
+        this.categories = categories;
     }
-
-
 }

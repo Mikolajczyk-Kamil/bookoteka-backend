@@ -19,7 +19,9 @@ public class RatingMapper {
 
     public RatingDto mapToRatingDto(Rating rating) {
         return new RatingDto(
+                rating.getId(),
                 userMapper.mapToUserDto(rating.getUser()),
+                bookMapper.mapToBookDto(rating.getBook()),
                 rating.getValue(),
                 rating.getComment()
         );
@@ -27,6 +29,7 @@ public class RatingMapper {
 
     public Rating mapToRating(RatingDto ratingDto) {
         return new Rating(
+                ratingDto.getId(),
                 userMapper.mapToUser(ratingDto.getUserDto()),
                 bookMapper.mapToBook(ratingDto.getBookDto()),
                 ratingDto.getValue(),

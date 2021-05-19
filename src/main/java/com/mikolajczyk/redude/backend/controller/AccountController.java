@@ -1,11 +1,9 @@
 package com.mikolajczyk.redude.backend.controller;
 
-import com.mikolajczyk.redude.backend.controller.response.LoginResponse;
 import com.mikolajczyk.redude.backend.controller.response.StatusResponse;
 import com.mikolajczyk.redude.backend.domain.Book;
 import com.mikolajczyk.redude.backend.domain.User;
 import com.mikolajczyk.redude.backend.dto.BookDto;
-import com.mikolajczyk.redude.backend.dto.UserDto;
 import com.mikolajczyk.redude.backend.log.LogController;
 import com.mikolajczyk.redude.backend.log.domain.Log;
 import com.mikolajczyk.redude.backend.log.type.LogType;
@@ -37,261 +35,295 @@ public class AccountController {
     private final BookService bookService;
     private final UserService userService;
     private final BookMapper bookMapper;
-    private final UserMapper userMapper;
     private final TokenVerifier verifier;
     private final RatingService ratingService;
     private final LogController logController;
     private final MailController mailController;
 
     @PostMapping
-    public LoginResponse signIn(@RequestHeader("Authorization") String token) {
+    public long signIn(@RequestHeader("Authorization") String token) {
         log.info("Signing in...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                if (optionalUser.isEmpty()) {
-                    log.info("User not found. Sign up new user...");
-                    user.setObserver(true);
-                    User result = userService.save(user);
-                    mailController.createAndSend(user.getName(), user.getEmail(), "Welcome to Redudo!", MailType.WELCOME);
-                    logController.log(new Log(LogType.SIGN_UP, result, null));
-                    return LoginResponse.SUCCESS_NEW_USER;
-                }
-                log.info(LoginResponse.SUCCESS.toString());
-                logController.log(new Log(LogType.SIGN_IN, optionalUser.get(), null));
-                return LoginResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE SIGNING IN USER");
             e.printStackTrace();
         }
-        return LoginResponse.FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            if (optionalUser.isEmpty()) {
+                log.info("User not found. Sign up new user...");
+                user.setObserver(true);
+                user = userService.save(user);
+                mailController.createAndSend(user.getName(), user.getEmail(), "Welcome to Redudo!", MailType.WELCOME);
+                logController.log(new Log(LogType.SIGN_UP, user, null));
+            } else
+                user = optionalUser.get();
+            logController.log(new Log(LogType.SIGN_IN, user, null));
+            log.info("SUCCESS");
+            return user.getId();
+        }
+        log.info("FAILED");
+        return 0;
     }
 
     @DeleteMapping
-    public StatusResponse delete(@RequestHeader("Authorization") String token) {
+    public long delete(@RequestHeader("Authorization") String token) {
+        log.info("Trying to delete user...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                logController.deleteAllUserLog(optionalUser.get());
-                ratingService.deleteAllByUser(optionalUser.get());
-                userService.delete(user.getGoogleId());
-                mailController.createAndSend(optionalUser.get().getName(), optionalUser.get().getEmail(), "This makes us feel sorry...", MailType.DELETE_ACCOUNT);
-                logController.log(new Log(LogType.DELETE_ACCOUNT, null, null));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE DELETING USER");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            log.info("(GOOGLE_ID: " + user.getGoogleId() + ")");
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            if (optionalUser.isPresent()) {
+                logController.deleteAllUserLog(optionalUser.get());
+                ratingService.deleteAllByUser(optionalUser.get());
+                userService.delete(optionalUser.get().getGoogleId());
+                mailController.createAndSend(optionalUser.get().getName(), optionalUser.get().getEmail(), "This makes us feel sorry...", MailType.DELETE_ACCOUNT);
+                logController.log(new Log(LogType.DELETE_ACCOUNT, null, null));
+                log.info("SUCCESS");
+                return user.getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
     @GetMapping("/toRead")
     public List<BookDto> getBooksToRead(@RequestHeader("Authorization") String token) {
         log.info("Trying to get books from 'toRead'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
-                if (userOptional.isPresent()) {
-                    log.info(StatusResponse.SUCCESS.toString() + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
-                    return bookMapper.mapToListBookDto(userOptional.get().getToRead());
-                }
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.info("ERROR WHILE GETTING BOOK TO READ");
             e.printStackTrace();
         }
-        return null;
+        if (user != null) {
+            Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
+            if (userOptional.isPresent()) {
+                log.info("SUCCESS" + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
+                return bookMapper.mapToListBookDto(userOptional.get().getToRead());
+            }
+        }
+        log.info("FAILED");
+        return List.of();
     }
 
-    @PutMapping("/toRead")
-    public StatusResponse addToRead(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
+    @PutMapping(value = "/toRead", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public long addToRead(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to add book 'toRead'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
-                if (optionalBook.isEmpty())
-                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                optionalBook = bookService.getByGoogleId(book.getGoogleId());
-                book.setId(optionalBook.get().getId());
-                userService.addToRead(book, optionalUser.get());
-                logController.log(new Log(LogType.ADD_TO_READ, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE ADDING BOOK FROM 'toRead'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Book book = bookMapper.mapToBook(bookDto);
+            Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty()) {
+                    log.info("Adding new book to database...");
+                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
+                }
+                user = userService.addToRead(book, optionalUser.get());
+                book = optionalBook.get();
+                logController.log(new Log(LogType.ADD_TO_READ, user, book));
+                log.info("SUCCESS");
+                return book.getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
     @DeleteMapping("/toRead/{googleId}")
-    public StatusResponse removeToRead(@PathVariable String googleId, @RequestHeader("Authorization") String token) {
+    public long removeToRead(@PathVariable String googleId, @RequestHeader("Authorization") String token) {
         log.info("Trying to remove from 'toRead'");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
-                if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                userService.removeToRead(optionalBook.get(), optionalUser.get());
-                logController.log(new Log(LogType.REMOVE_TO_READ, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE REMOVE BOOK FROM 'toRead'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty())
+                    return 0;
+                userService.removeToRead(optionalBook.get(), optionalUser.get());
+                logController.log(new Log(LogType.REMOVE_TO_READ, optionalUser.get(), optionalBook.get()));
+                log.info("SUCCESS");
+                return optionalBook.get().getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
     @GetMapping("/during")
     public List<BookDto> getBooksReading(@RequestHeader("Authorization") String token) {
         log.info("Trying to get books from 'reading'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
-                if (userOptional.isPresent()) {
-                    log.info(StatusResponse.SUCCESS.toString() + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
-                    return bookMapper.mapToListBookDto(userOptional.get().getReading());
-                }
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.info("ERROR WHILE GETTING BOOK FROM 'reading'");
             e.printStackTrace();
         }
-        return null;
+        if (user != null) {
+            Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
+            if (userOptional.isPresent()) {
+                log.info("SUCCESS" + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
+                return bookMapper.mapToListBookDto(userOptional.get().getReading());
+            }
+        }
+        log.info("FAILED");
+        return List.of();
     }
 
-    @PutMapping("/during")
-    public StatusResponse addReading(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
+    @PutMapping(value = "/during", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public long addReading(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to add book 'reading'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
-                if (optionalBook.isEmpty())
-                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                optionalBook = bookService.getByGoogleId(book.getGoogleId());
-                book.setId(optionalBook.get().getId());
-                userService.addReading(book, optionalUser.get());
-                logController.log(new Log(LogType.ADD_DURING, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE ADDING BOOK to 'reading'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Book book = bookMapper.mapToBook(bookDto);
+            Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty()) {
+                    log.info("Adding new book to database...");
+                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
+                }
+                user = userService.addReading(book, optionalUser.get());
+                book = optionalBook.get();
+                logController.log(new Log(LogType.ADD_DURING, user, book));
+                log.info("SUCCESS");
+                return book.getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
-    @DeleteMapping("/during/{isbn}")
-    public StatusResponse removeReading(@PathVariable String isbn, @RequestHeader("Authorization") String token) {
+    @DeleteMapping("/during/{googleId}")
+    public long removeReading(@PathVariable String googleId, @RequestHeader("Authorization") String token) {
         log.info("Trying to remove from 'reading'");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Optional<Book> optionalBook = bookService.getByIsbn(isbn);
-                if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                userService.removeReading(optionalBook.get(), optionalUser.get());
-                logController.log(new Log(LogType.REMOVE_DURING, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE REMOVE BOOK FROM 'reading'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty())
+                    return 0;
+                userService.removeReading(optionalBook.get(), optionalUser.get());
+                logController.log(new Log(LogType.REMOVE_DURING, optionalUser.get(), optionalBook.get()));
+                log.info("SUCCESS");
+                return optionalBook.get().getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
     @GetMapping("/done")
     public List<BookDto> getBooksHaveRead(@RequestHeader("Authorization") String token) {
         log.info("Trying to get books from 'haveRead'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
-                if (userOptional.isPresent()) {
-                    log.info(StatusResponse.SUCCESS.toString() + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
-                    return bookMapper.mapToListBookDto(userOptional.get().getHaveRead());
-                }
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.info("ERROR WHILE GETTING BOOK FROM 'haveRead'");
             e.printStackTrace();
         }
-        return null;
+        if (user != null) {
+            Optional<User> userOptional = userService.getByGoogleId(user.getGoogleId());
+            if (userOptional.isPresent()) {
+                log.info(StatusResponse.SUCCESS.toString() + " | User(GOOGLE_ID: " + user.getGoogleId() + ")");
+                log.info("SUCCESS");
+                return bookMapper.mapToListBookDto(userOptional.get().getHaveRead());
+            }
+        }
+        log.info("FAILED");
+        return List.of();
     }
 
     @PutMapping("/done")
-    public StatusResponse addHaveRead(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
+    public long addHaveRead(@RequestBody BookDto bookDto, @RequestHeader("Authorization") String token) {
         log.info("Trying to add book 'haveRead'...");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Book book = bookMapper.mapToBook(bookDto);
-                Optional<Book> optionalBook = bookService.getByIsbn(book.getGoogleId());
-                if (optionalBook.isEmpty())
-                    bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                optionalBook = bookService.getByIsbn(book.getGoogleId());
-                book.setId(optionalBook.get().getId());
-                userService.addHaveRead(book, optionalUser.get());
-                logController.log(new Log(LogType.ADD_DONE, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE ADDING BOOK to 'haveRead'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Book book = bookMapper.mapToBook(bookDto);
+            Optional<Book> optionalBook = bookService.getByGoogleId(book.getGoogleId());
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty()) {
+                    log.info("Adding new book to database...");
+                    book = bookService.saveOrUpdate(bookMapper.mapToBook(bookDto));
+                }
+                user = userService.addHaveRead(book, optionalUser.get());
+                book = optionalBook.get();
+                logController.log(new Log(LogType.ADD_DONE, user, book));
+                log.info("SUCCESS");
+                return book.getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 
-    @DeleteMapping("/done/{isbn}")
-    public StatusResponse removeHaveRead(@PathVariable String isbn, @RequestHeader("Authorization") String token) {
+    @DeleteMapping("/done/{googleId}")
+    public long removeHaveRead(@PathVariable String googleId, @RequestHeader("Authorization") String token) {
         log.info("Trying to remove from 'HaveRead'");
+        User user = null;
         try {
-            User user = verifier.verify(token);
-            if (user != null) {
-                Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
-                Optional<Book> optionalBook = bookService.getByIsbn(isbn);
-                if (optionalBook.isEmpty())
-                    return StatusResponse.BOOK_NOT_FOUND;
-                if (optionalUser.isEmpty())
-                    return StatusResponse.USER_NOT_FOUND;
-                userService.removeHaveRead(optionalBook.get(), optionalUser.get());
-                logController.log(new Log(LogType.REMOVE_DONE, optionalUser.get(), optionalBook.get()));
-                return StatusResponse.SUCCESS;
-            }
+            user = verifier.verify(token);
         } catch (GeneralSecurityException | IOException e) {
             log.error("ERROR WHILE REMOVE BOOK FROM 'haveRead'");
             e.printStackTrace();
         }
-        return StatusResponse.VERIFICATION_FAILED;
+        if (user != null) {
+            Optional<User> optionalUser = userService.getByGoogleId(user.getGoogleId());
+            Optional<Book> optionalBook = bookService.getByGoogleId(googleId);
+            if (optionalUser.isPresent()) {
+                if (optionalBook.isEmpty())
+                    return 0;
+                userService.removeHaveRead(optionalBook.get(), optionalUser.get());
+                logController.log(new Log(LogType.REMOVE_DONE, optionalUser.get(), optionalBook.get()));
+                log.info("SUCCESS");
+                return optionalBook.get().getId();
+            }
+        }
+        log.info("FAILED");
+        return 0;
     }
 }
