@@ -1,7 +1,7 @@
 Redudo
 ===
 
-#### Simple book manager.
+#### Backend of `Redudo` book manager. There is [frontend](https://github.com/Mikolajczyk-Kamil/redudo-frontend).
 
 Table of Contents
 ---
@@ -15,10 +15,9 @@ General info
 The Redudo is made for managing your books. After sign in via Google you can search for them in the database
 (if there is not the book, app use [Google Books Api](https://developers.google.com/books "Google Books Api")).\
 Then you can add the book to one of three lists:
-* books to read
-* books already reading
-* done books
-
+* books to read (to **RE**ad)
+* books already reading (**DU**ring)
+* done books (**DO**ne)
 
 Technologies
 ---
@@ -30,7 +29,16 @@ Project is created with:
 
 Setup
 ---
-To run project just save repository on your disc and compile in your development environment.
+To run project you have to set environment variables:
+* variables necessary to send automatic emails
+  * MAIL_USERNAME
+  * MAIL_PASSWORD
+  
+* variable necessary for OAuth2 authorization
+  * CLIENT_ID
+  
+To get it you have to create app in [Google Developer Console](https://console.cloud.google.com/apis/credentials)
+
 
 Endpoints
 ---
