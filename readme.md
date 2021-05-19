@@ -35,7 +35,7 @@ To run project you have to set environment variables:
   * MAIL_PASSWORD
   
 * variable necessary for OAuth2 authorization
-  * CLIENT_ID
+  * CLIENT_ID (same as for the backend app)
   
 To get it you have to create app in [Google Developer Console](https://console.cloud.google.com/apis/credentials)
 
