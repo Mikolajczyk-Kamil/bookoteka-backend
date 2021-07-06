@@ -3,6 +3,12 @@ Redudo
 
 #### Backend of `Redudo` book manager. There is [frontend](https://github.com/Mikolajczyk-Kamil/redudo-frontend).
 
+Preview
+---
+[redudo.heroku.com](https://redudo.herokuapp.com "Redudo")
+
+Server's wake up can take about minute
+
 Table of Contents
 ---
 * [General info](#general-info)
